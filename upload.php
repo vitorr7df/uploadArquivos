@@ -5,11 +5,15 @@ require_once 'db_connection.php';
 $allowed_extensions = array('jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx');
 $max_file_size = 10 * 1024 * 1024; // 10 MB
 $upload_path = 'uploads/';
+if (!is_dir($upload_path)) {
+    mkdir($upload_path, 0777, true);
+}
+
 
 if (isset($_FILES['files'])) {
 
     $errors = array();
-    $successes = array();
+    $successes = array(); 
 
     $files = $_FILES['files'];
 
