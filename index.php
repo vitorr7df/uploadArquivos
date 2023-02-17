@@ -52,6 +52,7 @@
           <tbody id="uploaded-files">
           </tbody>
         </table>
+        <button id="btnFinalizarUpload">Finalizar Upload</button>
       </div>
     </div>
   </div>

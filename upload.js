@@ -78,5 +78,19 @@ $(document).ready(function() {
       $('#uploaded-files').empty();
       $('#preview').empty();
     });
+
+    document.getElementById("btnFinalizarUpload").addEventListener("click", finalizarUpload);
+
+    function finalizarUpload() {
+      // envia uma requisição AJAX para finalizar o upload
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'finalizar_upload.php', true);
+      xhr.send();
+    
+      // exibe uma mensagem de sucesso
+      alert("Upload finalizado com sucesso!");
+    }
+    
+
   });
   
