@@ -1,4 +1,19 @@
 <?php
+session_start();
+// verificar se o formulário foi enviado
+if (isset($_POST['enviar'])) {
+  // fazer o upload do arquivo
+  $target_dir = "uploads/";
+  $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+  move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file);
+
+  // salvar o nome do arquivo na sessão
+  $_SESSION['uploaded_file'] = $target_file;
+
+  // redirecionar de volta para a página do formulário
+  header('Location: formulario.php');
+  exit;
+}
 function uploadFile(){
     require_once 'db_connection.php';
     $allowed_extensions = array('jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx');
