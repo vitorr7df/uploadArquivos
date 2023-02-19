@@ -1,81 +1,58 @@
 <?php
-session_start();
-// verificar se o formulário foi enviado
-if (isset($_POST['enviar'])) {
-  // fazer o upload do arquivo
-  $target_dir = "uploads/";
-  $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-  move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file);
+include_once 'db_connection.php';
 
-  // salvar o nome do arquivo na sessão
-  $_SESSION['uploaded_file'] = $target_file;
+$conn = conectaDB();
 
-  // redirecionar de volta para a página do formulário
-  header('Location: formulario.php');
-  exit;
-}
-function uploadFile(){
-    require_once 'db_connection.php';
-    $allowed_extensions = array('jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx');
-    $max_file_size = 10 * 1024 * 1024; // 10 MB
-    $upload_path = 'uploads/';
+if(isset($_FILES['file']['name'][0])) {
+  $errors = array();
+  $success = array();
 
-    // Verifica se o diretório de upload existe, se não, cria-o
-    if (!is_dir($upload_path)) {
-        mkdir($upload_path, 0777, true);
+  $allowedExtensions = array('jpg', 'jpeg', 'png', 'gif');
+  foreach($_FILES['file']['name'] as $key => $name) {
+    $tmpName = $_FILES['file']['tmp_name'][$key];
+    $size = $_FILES['file']['size'][$key];
+    $extension = pathinfo($name, PATHINFO_EXTENSION);
+
+    if(!in_array($extension, $allowedExtensions)) {
+      $errors[] = "$name - Extensão não permitida.";
+      continue;
     }
 
-    $connection = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-
-    if (isset($_FILES['file'])) {
-
-        $errors = array();
-        $successes = array();
-
-        $file_name = $_FILES['file']['name'];
-        $file_size = $_FILES['file']['size'];
-        $file_tmp = $_FILES['file']['tmp_name'];
-        $file_type = $_FILES['file']['type'];
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-
-        if ($file_size > $max_file_size) {
-            $errors[] = "$file_name excede o tamanho máximo permitido de " . ($max_file_size / (1024 * 1024)) . " MB";
-        }
-
-        if (!in_array($file_ext, $allowed_extensions)) {
-            $errors[] = "$file_name tem uma extensão inválida. São permitidas somente as seguintes extensões: " . implode(', ', $allowed_extensions);
-        }
-
-        if (empty($errors)) {
-            $file_name = uniqid('file_') . ".$file_ext";
-            $file_path = $upload_path . $file_name;
-
-            if (move_uploaded_file($file_tmp, $file_path)) {
-                $successes[] = "$file_name foi enviado com sucesso.";
-
-                $sql = "INSERT INTO arquivos (nome) VALUES ('$file_name')";
-                $result = mysqli_query($connection, $sql);
-
-                if (!$result) {
-                    $errors[] = "Erro ao inserir $file_name no banco de dados: " . mysqli_error($connection);
-                }
-            } else {
-                $errors[] = "Erro ao enviar $file_name.";
-            }
-        }
-
-        if (!empty($errors)) {
-            echo "<div class='alert alert-danger'>" . implode('<br>', $errors) . "</div>";
-        }
-
-        if (!empty($successes)) {
-            echo "<div class='alert alert-success'>" . implode('<br>', $successes) . "</div>";
-        }
+    if($size > 1000000) {
+      $errors[] = "$name - Arquivo muito grande (tamanho máximo: 1MB).";
+      continue;
     }
-}
 
+    $newName = uniqid('', true) . ".$extension";
+    $destination = 'imagens/' . $newName;
+    
+    // Verifica se o diretório de destino existe, caso contrário, cria-o
+    if (!file_exists('imagens/')) {
+      mkdir('imagens/', 0777, true);
+    }
 
-if (isset($_POST["gravar"])) {
-    uploadFile();
+    if(move_uploaded_file($tmpName, $destination)) {
+      $success[] = "$name - Enviado com sucesso.";
+      $content = addslashes(file_get_contents($destination));
+      $sql = "INSERT INTO imagens (nome, tamanho, tipo, conteudo) VALUES ('$newName', '$size', '$extension', '$content')";
+      if(mysqli_query($conn, $sql)) {
+        $success[] = "$name - Salvo no banco de dados com sucesso.";
+      } else {
+        $errors[] = "$name - Erro ao salvar no banco de dados: " . mysqli_error($conn);
+      }
+    } else {
+      $errors[] = "$name - Erro ao enviar o arquivo: " . error_get_last()['message'];
+    }
+  }
+
+  sleep(2);
+
+  if(!empty($errors)) {
+    echo "<div class='alert alert-danger'>" . implode("<br>", $errors) . "</div>";
+  }
+
+  if(!empty($success)) {
+    echo "<div class='alert alert-success'>" . implode("<br>", $success) . "</div>";
+  }
 }
 ?>

@@ -1,8 +1,19 @@
 <?php
 function conectaDB() {
-    $banco = '/home/siap/vitor.fdb';
-    $pdo = new PDO("firebird:dbname=localhost:$banco;charset=utf8;", "SYSDBA", 'masterkey');
-    $pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
-    return $pdo;
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $db = "imagens";
+
+    // Cria a conexão
+    $conn = new mysqli($servername, $username, $password, $db);
+    $conn->query('SET SESSION wait_timeout = 288800');
+
+    // Verifica se houve erro na conexão
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    return $conn;
 }
 ?>

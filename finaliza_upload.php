@@ -4,14 +4,16 @@ require_once 'db_connection.php';
 
 function finalizarUpload() {
   // abre conexão com o banco de dados
-  $pdo = conectaDB();
+  $conn = conectaDB();
 
   // atualiza o registro na tabela de arquivos para indicar que o upload foi concluído
-  $stmt = $pdo->prepare("UPDATE files SET uploaded = 1 WHERE id = :id");
-  $stmt->bindParam(':id', $_POST['id']);
+  $id = $_POST['id'];
+  $stmt = $conn->prepare("UPDATE imagens SET uploaded = 1 WHERE id = ?");
+  $stmt->bind_param('i', $id);
   $stmt->execute();
 }
 
 if (isset($_POST['id'])) {
   finalizarUpload();
 }
+?>
