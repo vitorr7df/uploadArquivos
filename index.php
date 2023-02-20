@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <title>Upload de arquivos com jQuery, PHP, Bootstrap e IBexpert</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <link rel="stylesheet" href="./upload.css">
+  <link rel="stylesheet" href="upload.css">
 </head>
 
 <body>
@@ -15,7 +15,7 @@
     </div>
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">Selecione os arquivos para upload</h3>
+        <h3 class="panel-title">Selecione os arquivos para upload!</h3>
       </div>
       <div class="panel-body">
         <form id="uploadForm" action="upload.php" method="post" enctype="multipart/form-data">
@@ -24,6 +24,8 @@
             <input type="file" name="file[]" id="file" multiple>
           </div>
           <div class="form-group">
+            <label for="filename">Nome do arquivo:</label>
+            <input type="text" name="filename" id="filename" />
             <input type="submit" class="btn btn-primary" value="Enviar" id="btn-upload">
             <input type="button" class="btn btn-default" value="Cancelar" id="btn-cancel">
           </div>
@@ -47,6 +49,7 @@
             <tr>
               <th>Nome</th>
               <th>Excluir</th>
+              <th>Abrir arquivo na pasta</th>
             </tr>
           </thead>
           <tbody id="uploaded-files">
@@ -61,6 +64,7 @@
 <script src="./upload.js"></script>
 <script>
   $(document).on('click', '#btnFinalizarUpload', function() {
+    alert("Upload finalizado com sucesso!");
     location.reload();
   });
 </script>

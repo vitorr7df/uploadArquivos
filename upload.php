@@ -32,11 +32,10 @@ if(isset($_FILES['file']['name'][0])) {
     }
 
     if(move_uploaded_file($tmpName, $destination)) {
-      $success[] = "$name - Enviado com sucesso.";
       $content = addslashes(file_get_contents($destination));
       $sql = "INSERT INTO imagens (nome, tamanho, tipo, conteudo) VALUES ('$newName', '$size', '$extension', '$content')";
       if(mysqli_query($conn, $sql)) {
-        $success[] = "$name - Salvo no banco de dados com sucesso.";
+        $success[] = "$name - Enviado e salvo no banco de dados com sucesso.";
       } else {
         $errors[] = "$name - Erro ao salvar no banco de dados: " . mysqli_error($conn);
       }
@@ -55,4 +54,5 @@ if(isset($_FILES['file']['name'][0])) {
     echo "<div class='alert alert-success'>" . implode("<br>", $success) . "</div>";
   }
 }
+
 ?>
